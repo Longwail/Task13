@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Practicum13
 {
-    //абстрактный класс
     abstract class Trans
     {
         public abstract int LoadCapacity { get; }
@@ -14,7 +14,6 @@ namespace Practicum13
         public abstract void GetLoadCapacity();
     }
 
-    //реализующие классы
     class Car : Trans
     {
         string brand;
@@ -84,12 +83,12 @@ namespace Practicum13
         {
             if (isСarriage)
             {
-                Console.WriteLine($"Так как есть коляска, то грузоподъемность мотоцикла {loadCapacity}");
+                //Console.WriteLine($"Так как есть коляска, то грузоподъемность мотоцикла {loadCapacity}");
             }
             else
             {
                 loadCapacity = 0;
-                Console.WriteLine($"Так как коляски нет, то грузоподъемность мотоцикла {loadCapacity}");
+                //Console.WriteLine($"Так как коляски нет, то грузоподъемность мотоцикла {loadCapacity}");
             }
         }
     }
@@ -129,11 +128,11 @@ namespace Practicum13
             if (isTrailer)
             {
                 loadCapacity *= 2;
-                Console.WriteLine($"Так как есть прицеп, то грузоподъемность грузовика: {loadCapacity}");
+                //Console.WriteLine($"Так как есть прицеп, то грузоподъемность грузовика: {loadCapacity}");
             }
             else
             {
-                Console.WriteLine($"Так как прицепа нет, то грузоподъемность грузовика: {loadCapacity}");
+                //Console.WriteLine($"Так как прицепа нет, то грузоподъемность грузовика: {loadCapacity}");
             }
         }
     }
@@ -143,145 +142,68 @@ namespace Practicum13
         static void Main(string[] args)
         {
             List <Trans> transport = new List<Trans>();
-            int amount;
-            while (true)
-            {
-                try
-                {
-                    Console.Write("Введите количество транспортных средств: ");
-                    amount = int.Parse(Console.ReadLine());
-                    if (amount < 1) throw new Exception("Значение не может равняться нулю или меньше!");
-                    break;
-                }
-                catch (FormatException)
-                {
-                    Console.WriteLine("Ошибка! Введите целочисленное значение");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+            int amount = 0;
+            string brand;
+            int number = 0, speed = 0, loadCapacity = 0;
+            bool isCarriage = true;
+            bool isTrailer = true;
 
-            for (int i = 0; i < amount; i++)
-            {
-                int choose;
-                while (true)
+            int opetation;
+
+            Console.Write("Введите номер желаемой операции: ");
+            opetation = int.Parse(Console.ReadLine());
+			switch (opetation) {
+				case 1:
+                    //[1]Тип т/с (Автомобиль, Мотоцикл, Грузовик)
+                    //[2]Марка
+                    //[3]Номер
+                    //[4]Скорость
+                    //[5]Грузоподъемность (если Автомобиль или Грузовик)
+                    //[6]Есть ли прицеп/коляска (если Грузовик, если Мотоцикл - вписать на строке [5])
+                    string fileName = "database.txt";
+                    string filePath = Path.GetFullPath(fileName);
+			        string[] arr = File.ReadAllLines(filePath);
+
+			for (int i = 0; i < arr.Length; i++) {
+				if (arr[i] == "Автомобиль") 
                 {
-                    try
-                    {
-                        Console.WriteLine("\nКакое т/с нужно добавить?\n1 - Легковая машина, 2 - Мотоцикл, 3 - Грузовик");
-                        Console.Write("Введите нужное значение: ");
-                        choose = int.Parse(Console.ReadLine());
-                        if (choose < 1 || choose > 3) throw new Exception("Введите цифру в диапазоне от 1 до 3!");
-                        break;
-                    }
-                    catch (FormatException)
-                    {
-                        Console.WriteLine("Ошибка! Введите целочисленное значение");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
+					brand = arr[i + 1];
+					number = Convert.ToInt32(arr[i + 2]);
+					speed = Convert.ToInt32(arr[i + 3]);
+					loadCapacity = Convert.ToInt32(arr[i + 4]);
+					Car car = new Car(brand, number, speed, loadCapacity);
+					transport.Add(car);
+				}
 
-                string brand;
-                int number = 0, speed = 0, loadCapacity = 0;
-                switch (choose)
+                else if (arr[i] == "Мотоцикл") 
                 {
-                    case 1:
-                        Console.Write("Введите марку т/с: ");
-                        brand = Console.ReadLine();
-                        try
-                        {
-                            Console.Write("Введите номер т/с: ");
-                            number = int.Parse(Console.ReadLine());
-                            Console.Write("Введите скорость т/с: ");
-                            speed = int.Parse(Console.ReadLine());
-                            Console.Write("Введите грузоподъемность т/с: ");
-                            loadCapacity = int.Parse(Console.ReadLine());
-                            if (number < 0 || speed < 0 || loadCapacity < 0) throw new Exception("Значение не может быть отрицательным!");
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Ошибка! Введите численное значение");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
-
-                        Car car = new Car(brand, number, speed, loadCapacity);
-                        transport.Add(car);
-                        break;
-
-                    case 2:
-                        Console.Write("Введите марку т/с: ");
-                        brand = Console.ReadLine();
-                        bool isCarriage = true;
-                        try
-                        {
-                            Console.Write("Введите номер т/с: ");
-                            number = int.Parse(Console.ReadLine());
-                            Console.Write("Введите скорость т/с: ");
-                            speed = int.Parse(Console.ReadLine());
-                            Console.Write("Имеется ли у т/с мотоколяска? (Да/Нет): ");
-                            string answ = Console.ReadLine();
+                    brand = arr[i + 1];
+                    number = Convert.ToInt32(arr[i + 2]);
+					speed = Convert.ToInt32(arr[i + 3]);
+                    string answ = arr[i + 4];
                             switch (answ)
                             {
                                 case "Да":
                                     isCarriage = true;
-                                    try
-                                    {
-                                        Console.Write("Введите грузоподъемность: ");
-                                        loadCapacity = int.Parse(Console.ReadLine());
-                                        if (loadCapacity < 0) throw new Exception("Грузоподъемность не может быть отрицательной!");
-                                    }
-                                    catch (FormatException)
-                                    {
-                                        Console.WriteLine("Ошибка! Нужно ввести численное значение");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine(ex.Message);
-                                    }
+                                    loadCapacity = Convert.ToInt32(arr[i + 5]);
                                     break;
                                 case "Нет":
                                     isCarriage = false;
-                                    break;
+                                    break; 
                             }
-                            if (number < 0 || speed < 0 || loadCapacity < 0) throw new Exception("Значение не может быть отрицательным!");
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Ошибка! Введите численное значение");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
+                    Motorcycle bike = new Motorcycle(brand, number, speed, loadCapacity, isCarriage);
+                    bike.GetLoadCapacity();
+                    transport.Add(bike);
+				}
 
-                        Motorcycle bike = new Motorcycle(brand, number, speed, loadCapacity, isCarriage);
-                        bike.GetLoadCapacity();
-                        transport.Add(bike);
-                        break;
+                else if (arr[i] == "Грузовик") 
+                {
+                    brand = arr[i + 1];
+                    number = Convert.ToInt32(arr[i + 2]);
+					speed = Convert.ToInt32(arr[i + 3]);
+                    loadCapacity = Convert.ToInt32(arr[i + 4]);
 
-                    case 3:
-                        Console.Write("Введите марку т/с: ");
-                        brand = Console.ReadLine();
-                        bool isTrailer = true;
-                        try
-                        {
-                            Console.Write("Введите номер т/с: ");
-                            number = int.Parse(Console.ReadLine());
-                            Console.Write("Введите скорость т/с: ");
-                            speed = int.Parse(Console.ReadLine());
-                            Console.Write("Введите грузоподъемность т/с: ");
-                            loadCapacity = int.Parse(Console.ReadLine());
-                            if (number < 0 || speed < 0 || loadCapacity < 0) throw new Exception("Значение не может быть отрицательным!");
-                            Console.Write("Имеется ли у грузовика прицеп? (Да/Нет): ");
-                            string str = Console.ReadLine();
+                    string str = arr[i + 5];
                             switch (str)
                             {
                                 case "Да":
@@ -291,20 +213,13 @@ namespace Practicum13
                                     isTrailer = false;
                                     break;
                             }
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Ошибка! Введите численное значение");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
-                        Truck truck = new Truck(brand, number, speed, loadCapacity, isTrailer);
-                        truck.GetLoadCapacity();
-                        transport.Add(truck);
-                        break;
-                }
+                    Truck truck = new Truck(brand, number, speed, loadCapacity, isTrailer);
+                    truck.GetLoadCapacity();
+                    transport.Add(truck);
+				}
+			}
+					break;
+                
             }
             Console.WriteLine("\nИнформация из базы данных по всем внесенным т/с\n");
             foreach (var e in transport)
@@ -331,13 +246,18 @@ namespace Practicum13
                     Console.WriteLine(ex.Message);
                 }
             }
-            
+
+            int count = 0;
             Console.WriteLine("Т/с, с подходящей грузоподъемностью:\n");
             foreach (var t in transport)
             {
-                if (t.LoadCapacity >= loadCap) t.OutInfo();
-                else Console.WriteLine("Подходящих т/с не обнаружено!");
+                if (t.LoadCapacity == loadCap) 
+                {
+                    t.OutInfo();
+                    count++;
+                }
             }
+            if (count == 0) Console.WriteLine("Подходящих т/с не обнаружено");
         }
     }
 }

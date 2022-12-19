@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,8 +15,6 @@ namespace Practicum13_Task1_WF
     public partial class Form1 : Form
     {
         List<Trans> transport = new List<Trans>();
-        int amount;
-        int count;
         string brand;
         int number = 0, speed = 0, loadCapacity = 0;
         bool isCarriage = true;
@@ -26,192 +25,92 @@ namespace Practicum13_Task1_WF
             InitializeComponent();
         }
 
-        private void CountIsFull()
-        {
-            if (count == amount)
-            {
-                MessageBox.Show("Все данные занесены");
-                button2.Enabled = false;
-                button3.Enabled = false;
-                button4.Enabled = false;
-
-                groupBox3.Enabled = false;
-                groupBox4.Enabled = false;
-                groupBox5.Enabled = false;
-
-                richTextBox1.Clear();
-                foreach (var e in transport)
-                {
-                    richTextBox1.Text += e.OutInfo();
-                }
-            }
-        }
-
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-            groupBox4.Enabled = false;
-            groupBox5.Enabled = false;
-            button2.Enabled = true;
-            button3.Enabled = false;
-            button4.Enabled = false;
-            numericUpDown4.Enabled = true;
-        }
-
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-            groupBox4.Enabled = true;
-            groupBox5.Enabled = false;
-            button2.Enabled = false;
-            button3.Enabled = true;
-            button4.Enabled = false;
-            numericUpDown4.Enabled = false;
-        }
-
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
-        {
-            groupBox4.Enabled = false;
-            groupBox5.Enabled = true;
-            button2.Enabled = false;
-            button3.Enabled = false;
-            button4.Enabled = true;
-                        numericUpDown4.Enabled = true;
-        }
-
-        private void radioButton4_CheckedChanged(object sender, EventArgs e)
-        {
-            isCarriage = true;
-            numericUpDown4.Enabled = true;
-        }
-
-        private void radioButton5_CheckedChanged(object sender, EventArgs e)
-        {
-            isCarriage = false;
-            numericUpDown4.Enabled = false;
-        }
-
-        private void radioButton6_CheckedChanged(object sender, EventArgs e)
-        {
-            isTrailer = true;
-        }
-
-        private void radioButton7_CheckedChanged(object sender, EventArgs e)
-        {
-            isTrailer = false;
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            brand = textBox1.Text;
-            number = (int)numericUpDown2.Value;
-            speed = (int)numericUpDown3.Value;
-            loadCapacity = (int)numericUpDown4.Value;
-
-            Motorcycle bike = new Motorcycle(brand, number, speed, loadCapacity, isCarriage);
-            transport.Add(bike);
-            count++;
-
-            textBox1.Clear();
-            radioButton4.Checked = false;
-            radioButton5.Checked = false;
-            numericUpDown2.Value = 0;
-            numericUpDown3.Value = 0;
-            numericUpDown4.Value = 0;
-            numericUpDown4.Enabled = true;
-
-            radioButton1.Checked = false;
-            radioButton2.Checked = false;
-            radioButton3.Checked = false;
-
-            CountIsFull();
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            brand = textBox1.Text;
-            number = (int)numericUpDown2.Value;
-            speed = (int)numericUpDown3.Value;
-            loadCapacity = (int)numericUpDown4.Value;
-
-            Truck truck = new Truck(brand, number, speed, loadCapacity, isTrailer);
-            MessageBox.Show(truck.GetLoadCapacity());
-            transport.Add(truck);
-            count++;
-
-            textBox1.Clear();
-            radioButton6.Checked = false;
-            radioButton7.Checked = false;
-            numericUpDown2.Value = 0;
-            numericUpDown3.Value = 0;
-            numericUpDown4.Value = 0;
-
-            radioButton1.Checked = false;
-            radioButton2.Checked = false;
-            radioButton3.Checked = false;
-
-            CountIsFull();
-        }
-
         private void button5_Click(object sender, EventArgs e)
         {
             int loadCap = (int)numericUpDown5.Value;
             richTextBox2.Clear();
+            int count = 0;
             foreach (var t in transport)
             {
-                if (t.LoadCapacity >= loadCap) richTextBox2.Text += t.OutInfo();
-                else 
+                if (t.LoadCapacity == loadCap) 
                 {
-                    MessageBox.Show("Нет подходящего т/с");
-                    return;
+                    richTextBox2.Text += t.OutInfo();
+                    count++;
                 } 
             }
+            if (count == 0) MessageBox.Show("Подходящих т/с не найдено", "Ошибка!");
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                amount = (int)numericUpDown1.Value;
-                if (amount <= 0) throw new Exception("Количество т/с не может быть 0-м или отрицательным");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка!");
-                return;
-            }
+		private void button6_Click(object sender, EventArgs e) {
+            OpenFileDialog dlg = new OpenFileDialog();
 
-            button2.Enabled = true;
-            button3.Enabled = true;
-            button4.Enabled = true;
+            dlg.Filter = "Text files(*.txt)|*.txt";
+            dlg.InitialDirectory = "E:\\УП\\Practicum13\\Practicum13\\bin\\Debug";
+            
+            if (dlg.ShowDialog() == DialogResult.Cancel) return;
 
-            groupBox3.Enabled = true;
-            groupBox4.Enabled = true;
-            groupBox5.Enabled = true;
+            string fileName = dlg.FileName;
+            string filePath = Path.GetFullPath(fileName);
+			string[] arr = File.ReadAllLines(filePath);
 
-            count = 0;
-        }
+			for (int i = 0; i < arr.Length; i++) {
+				if (arr[i] == "Автомобиль") 
+                {
+					brand = arr[i + 1];
+					number = Convert.ToInt32(arr[i + 2]);
+					speed = Convert.ToInt32(arr[i + 3]);
+					loadCapacity = Convert.ToInt32(arr[i + 4]);
+					Car car = new Car(brand, number, speed, loadCapacity);
+					transport.Add(car);
+					richTextBox1.Text += car.OutInfo();
+				}
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            brand = textBox1.Text;
-            number = (int)numericUpDown2.Value;
-            speed = (int)numericUpDown3.Value;
-            loadCapacity = (int)numericUpDown4.Value;
+                else if (arr[i] == "Мотоцикл") 
+                {
+                    brand = arr[i + 1];
+                    number = Convert.ToInt32(arr[i + 2]);
+					speed = Convert.ToInt32(arr[i + 3]);
+                    string answ = arr[i + 4];
+                            switch (answ)
+                            {
+                                case "Да":
+                                    isCarriage = true;
+                                    loadCapacity = Convert.ToInt32(arr[i + 5]);
+                                    break;
+                                case "Нет":
+                                    isCarriage = false;
+                                    break; 
+                            }
+                    Motorcycle bike = new Motorcycle(brand, number, speed, loadCapacity, isCarriage);
+                    bike.GetLoadCapacity();
+                    transport.Add(bike);
+                    richTextBox1.Text += bike.OutInfo();
+				}
 
-            Car car = new Car(brand, number, speed, loadCapacity);
-            transport.Add(car);
-            count++;
+                else if (arr[i] == "Грузовик") 
+                {
+                    brand = arr[i + 1];
+                    number = Convert.ToInt32(arr[i + 2]);
+					speed = Convert.ToInt32(arr[i + 3]);
+                    loadCapacity = Convert.ToInt32(arr[i + 4]);
 
-            textBox1.Clear();
-            numericUpDown2.Value = 0;
-            numericUpDown3.Value = 0;
-            numericUpDown4.Value = 0;
-
-            radioButton1.Checked = false;
-            radioButton2.Checked = false;
-            radioButton3.Checked = false;
-
-            CountIsFull();
-        }
+                    string str = arr[i + 5];
+                            switch (str)
+                            {
+                                case "Да":
+                                    isTrailer = true;
+                                    break;
+                                case "Нет":
+                                    isTrailer = false;
+                                    break;
+                            }
+                    Truck truck = new Truck(brand, number, speed, loadCapacity, isTrailer);
+                    truck.GetLoadCapacity();
+                    transport.Add(truck);
+                    richTextBox1.Text += truck.OutInfo();
+				}
+			}
+		}
     }
 
     //абстрактный класс
